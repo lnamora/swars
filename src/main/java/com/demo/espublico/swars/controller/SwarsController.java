@@ -64,21 +64,24 @@ class SwarsController {
     @PostMapping (value = "/load")
     public String load(Model model) {
         loadFilms();
-/*
-        log.info("Retrieving stored info");
-        List<Person> personList =  personRepository.findAll();
-
-        for (Person person: personList) {
-            log.info("person name :"+person.getName());
-            for (Film film: person.getFilms()) {
-                log.info("film title :" + film.getTitle());
-            }
-        }
-
-
-        model.addAttribute("personList",personList);
-        */
         return "redirect:/listPeopleFilms";
+    }
+
+    @GetMapping (value = "/managefilms")
+    public String loadfilms(Model model) {
+        List<Film> filmList =  filmRepository.findAll();
+        model.addAttribute("filmList",filmList);
+        return "/managefilms";
+    }
+
+    @RequestMapping("/ajax/pilots")
+    public String ajaxBrands(@RequestParam("films") String films, Model model) {
+        log.info("films :" + films);
+        Person pilot =  personRepository.findPilotByMaxCountStarship(films);
+        model.addAttribute("pilot", pilot);
+        log.info("pilot :" + pilot.getName());
+        return "/managefilms";
+      //  return "managefilms :: pilots";
     }
 
     private void loadFilms() {

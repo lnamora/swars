@@ -10,21 +10,10 @@
     <link rel="stylesheet" href="../css/shards.min.css">
 </head>
 <body>
-    <div th:switch="${personList}" class="container my-5">
-            <div th:case="null">
-                <div class="col-md-6">
-                    <h2>No loaded data yet!</h2>
-                    <form action="#" th:action="@{/load}" method="post">
-                        <p><input  type="submit" value="Load" /> </p>
-                    </form>
-                </div>
-            </div>
-            <div th:case="*">
-                <h2>Manage films</h2>
-                <form action="#" th:action="@{/managefilms}" method="get">
-                    <p><input  type="submit" value="Manage films" /> </p>
-                </form>
-            </div>
-    </div>
+    <h2 class="my-5">List of Films</h2>
+    <label id="filmlabel" for="select-film" > Paciente</label>
+    <select th:field="*{films}" id="select-film" required="required" multiple="multiple">
+        <option th:each="film : ${filmList}" th:field="*{films}" th:value="${film.id}" th:text="${film.title}" />
+    </select>
 </body>
 </html>
