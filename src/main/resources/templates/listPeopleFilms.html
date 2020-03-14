@@ -1,0 +1,12 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<html>
+<body>
+<tr th:each="person: ${personList}">
+    <td th:text="${person.name}" />
+    <span th:each="film,iter : ${person.films}">
+
+        <td th:text="${film.name}" />
+    </span>
+</tr>
+</body>
+</html>
