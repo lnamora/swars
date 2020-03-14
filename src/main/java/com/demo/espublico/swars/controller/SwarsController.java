@@ -44,6 +44,11 @@ class SwarsController {
 
     }
 
+    @GetMapping("/error")
+    public String showError() {
+        return "error";
+    }
+
     @GetMapping("/index")
     public String showIndex() {
         return "index";
@@ -53,16 +58,16 @@ class SwarsController {
     public String buscarTodos(Model model) {
         List<Person> personList =  personRepository.findAll();
         model.addAttribute("personList",personList);
-        return  "index";
+        return  "listPeopleFilms";
     }
 
-    @GetMapping (value = "/load")
+    @PostMapping (value = "/load")
     public String load(Model model) {
         loadFilms();
-
+/*
         log.info("Retrieving stored info");
         List<Person> personList =  personRepository.findAll();
-        /*
+
         for (Person person: personList) {
             log.info("person name :"+person.getName());
             for (Film film: person.getFilms()) {
@@ -70,9 +75,10 @@ class SwarsController {
             }
         }
 
-         */
+
         model.addAttribute("personList",personList);
-        return "index";
+        */
+        return "redirect:/listPeopleFilms";
     }
 
     private void loadFilms() {
@@ -100,7 +106,7 @@ class SwarsController {
 
                 filmBean.setCharacters(chars);
                 filmBean.setStarships(sships);
-                filmRepository.save(filmBean);
+                filmRepository.flush();
             }
         } else {
             log.info("Your search didn't get any results");
@@ -135,7 +141,7 @@ class SwarsController {
                         log.info("loading people film name :" + character.getName());
                     }
                     filmNew.setCharacters(chars);
-                    filmRepository.save(filmNew);
+                    filmRepository.flush();
                 }
                 if(null != filmNew.getStarships()){
                     Set<Starship> sships = loadSubCallStarships(response.getAsJsonArray("starships"));
@@ -143,7 +149,7 @@ class SwarsController {
                         log.info("loading people sship name :" + sship.getName());
                     }
                     filmNew.setStarships(sships);
-                    filmRepository.save(filmNew);
+                    filmRepository.flush();
                 }
 
                 filmSet.add(filmNew);
@@ -183,7 +189,7 @@ class SwarsController {
 
                     personNew.setFilms(new ArrayList<Film>(films));
                     personNew.setStarships(new ArrayList<Starship>(sships));
-                    personRepository.save(personNew);
+                    personRepository.flush();
                 }
                 personList.add(personNew);
             }
@@ -226,7 +232,7 @@ class SwarsController {
 
                     starshipNew.setFilms(films);
                     starshipNew.setPilots(pilots);
-                    starshipRepository.save(starshipNew);
+                    starshipRepository.flush();
                 }
 
                 starshipList.add(starshipNew);

@@ -4,10 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -52,5 +49,10 @@ public class Person {
     private List<Starship> starships;
 
     public Person(String asString) {
+    }
+
+    @Transient
+    public Integer getCountFilm(){
+        return this.films.size();
     }
 }
