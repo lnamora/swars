@@ -74,7 +74,7 @@ class SwarsController {
         return "/managefilms";
     }
 
-    @RequestMapping("/ajax/pilots")
+    @RequestMapping("/ajax/pilot")
     public String ajaxBrands(@RequestParam("films") String films, Model model) {
         log.info("films :" + films);
         Person pilot =  personRepository.findPilotByMaxCountStarship(films);

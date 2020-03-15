@@ -10,10 +10,21 @@
     <link rel="stylesheet" href="../css/shards.min.css">
 </head>
 <body>
+    <script th:inline="javascript">
+        /*[+
+            $(function() {
+                $('#film').on('submit', function() {
+                    $("#pilot").load('/ajax/pilot', $("#film").serialize());
+                });
+            });
+      +]*/
+    </script>
     <h2 class="my-5">List of Films</h2>
-    <label id="filmlabel" for="select-film" > Paciente</label>
-    <select th:field="*{films}" id="select-film" required="required" multiple="multiple">
-        <option th:each="film : ${filmList}" th:field="*{films}" th:value="${film.id}" th:text="${film.title}" />
+    <label id="filmlabel" for="select-film">Select Films</label>
+    <select  id="film" name ="film" multiple="multiple" >
+        <option th:each="film : ${filmList}" th:value="${film.id}" th:text="${film.title}" />
     </select>
+    <td><input type="submit" value="Check" /></td>
+    <td th:id="pilot" th:text="${pilot}"></td>
 </body>
 </html>
