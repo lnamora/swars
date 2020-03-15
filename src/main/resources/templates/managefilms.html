@@ -16,8 +16,7 @@
 
                 $(function() {
                     $('#checkbutton').click(function() {
-                        console.log("prueba :"+Number($("#film").serialize()));
-                        $("#pilot").load('/ajax/pilot', Number($("#film").serialize()));
+                        $("#pilot").load('/ajax/pilot', $("#film").serialize());
                     });
                 });
 

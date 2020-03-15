@@ -19,10 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 @Slf4j
@@ -77,7 +74,12 @@ class SwarsController {
 
     @GetMapping("/ajax/pilot")
     public String ajaxPilots(@RequestParam("film") String film, Model model) {
-        List<Person> pilot =  personRepository.findPilotByMaxCountStarship(film);
+        String[] aux = film.split(",");
+        Integer[] filmInteger = new Integer[aux.length];
+        for (int i = 0; i < aux.length; i++) {
+            filmInteger[i] = Integer.valueOf(aux[i]);
+        }
+        List<Person> pilot =  personRepository.findPilotByMaxCountStarship(filmInteger);
         if(!pilot.isEmpty()){
             model.addAttribute("pilot", pilot.get(0).getName());
             log.info("pilot :" + pilot.get(0).getName());
