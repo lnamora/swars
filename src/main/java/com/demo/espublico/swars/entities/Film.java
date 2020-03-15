@@ -3,6 +3,7 @@ package com.demo.espublico.swars.entities;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 /**
  * Film
@@ -35,7 +36,7 @@ public class Film {
         name = "film_person",
         joinColumns = @JoinColumn(name = "film_id"),
         inverseJoinColumns = @JoinColumn(name = "person_id"))
-    private Set<Person> characters;
+    private List<Person> characters;
 
     /**
      * The starship resources featured within this film.
@@ -47,5 +48,5 @@ public class Film {
             name = "film_starship",
             joinColumns = @JoinColumn(name = "film_id"),
             inverseJoinColumns = @JoinColumn(name = "starship_id"))
-    private Set<Starship> starships;
+    private List<Starship> starships;
 }

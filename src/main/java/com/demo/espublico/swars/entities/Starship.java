@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -36,13 +37,13 @@ public class Starship {
      *
      */
     @ManyToMany(mappedBy = "starships")
-    private Set<Film> films;
+    private List<Film> films;
 
     @ManyToMany
     @JoinTable(
             name = "starship_person",
             joinColumns = @JoinColumn(name = "starship_id"),
             inverseJoinColumns = @JoinColumn(name = "person_id"))
-    private Set<Person> pilots;
+    private List<Person> pilots;
 
 }

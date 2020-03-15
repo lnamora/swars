@@ -71,17 +71,19 @@ class SwarsController {
     public String loadfilms(Model model) {
         List<Film> filmList =  filmRepository.findAll();
         model.addAttribute("filmList",filmList);
+        model.addAttribute("pilot","");
         return "/managefilms";
     }
 
-    @RequestMapping("/ajax/pilot")
-    public String ajaxBrands(@RequestParam("films") String films, Model model) {
-        log.info("films :" + films);
-        Person pilot =  personRepository.findPilotByMaxCountStarship(films);
-        model.addAttribute("pilot", pilot);
-        log.info("pilot :" + pilot.getName());
-        return "/managefilms";
-      //  return "managefilms :: pilots";
+    @GetMapping("/ajax/pilot")
+    public String ajaxPilots(@RequestParam("film") String film, Model model) {
+        List<Person> pilot =  personRepository.findPilotByMaxCountStarship(film);
+        if(!pilot.isEmpty()){
+            model.addAttribute("pilot", pilot.get(0).getName());
+            log.info("pilot :" + pilot.get(0).getName());
+        }
+       // return "/managefilms";
+       return "managefilms :: pilot";
     }
 
     private void loadFilms() {
@@ -107,8 +109,8 @@ class SwarsController {
                     log.info("loading films sship name :" + sship.getName());
                 }
 
-                filmBean.setCharacters(chars);
-                filmBean.setStarships(sships);
+                filmBean.setCharacters(new ArrayList<Person>(chars));
+                filmBean.setStarships(new ArrayList<Starship>(sships));
                 filmRepository.flush();
             }
         } else {
@@ -130,48 +132,46 @@ class SwarsController {
                 String uri = element.getAsString();
                 JsonObject response = repository.innerRequest(uri);
                 List<Film> filmAux = filmRepository.findByTitleIs(response.get("title").getAsString());
-                Film filmNew = new Film();
-                if(filmAux.isEmpty()){
-                    filmNew.setTitle(response.get("title").getAsString());
-                    filmRepository.save(filmNew);
-                }else{
-                    filmNew = filmAux.get(0);
-                }
-
-                if(null != filmNew.getCharacters()){
-                    Set<Person> chars = loadSubCallPeople(response.getAsJsonArray("characters"));
-                    for (Person character: chars) {
-                        log.info("loading people film name :" + character.getName());
-                    }
-                    filmNew.setCharacters(chars);
-                    filmRepository.flush();
-                }
-                if(null != filmNew.getStarships()){
-                    Set<Starship> sships = loadSubCallStarships(response.getAsJsonArray("starships"));
-                    for (Starship sship: sships) {
-                        log.info("loading people sship name :" + sship.getName());
-                    }
-                    filmNew.setStarships(sships);
-                    filmRepository.flush();
-                }
-
-                filmSet.add(filmNew);
-
-            }
+                filmSet.addAll(filmAux);
+              }
         } else {
             log.info("nothing here");
         }
         return filmSet;
     }
 
-    //prints the underlying api calls in the array of the original call.
-    private Set<Person> loadSubCallPeople(JsonArray jsonArray) {
-        Set<Person> personList = new HashSet<>();
+    /**
+     * load for films the underlying api calls in the array of the original call.
+     * @param jsonArray
+     * @return Set<Person>
+     */
+    private Set<Person> loadSubCallPilots(JsonArray jsonArray) {
+        Set<Person> pilotSet = new HashSet<>();
         if (jsonArray.size() != 0) {
             for (int j = 0; j < jsonArray.size(); j++) {
                 JsonElement element = jsonArray.get(j);
                 String uri = element.getAsString();
                 JsonObject response = repository.innerRequest(uri);
+                List<Person> pilotAux = personRepository.findByNameIs(response.get("name").getAsString());
+                pilotSet.addAll(pilotAux);
+            }
+        } else {
+            log.info("nothing here");
+        }
+        return pilotSet;
+    }
+
+    //prints the underlying api calls in the array of the original call.
+    private Set<Person> loadSubCallPeople(JsonArray jsonArray) {
+        log.info("loadSubCallPeople:");
+        Set<Person> personList = new HashSet<>();
+        if (jsonArray.size() != 0) {
+            for (int j = 0; j < jsonArray.size(); j++) {
+                JsonElement element = jsonArray.get(j);
+                String uri = element.getAsString();
+                log.info("people uri: "+uri);
+                JsonObject response = repository.innerRequest(uri);
+                log.info("people json:"+response.get("name").getAsString());
                 List<Person> personAux = personRepository.findByNameIs(response.get("name").getAsString());
                 Person personNew = new Person();
                 if(personAux.isEmpty()){
@@ -180,17 +180,20 @@ class SwarsController {
                 }else{
                     personNew = personAux.get(0);
                 }
-                if(null != personNew.getFilms()){
+                if(null == personNew.getFilms()){
+                    log.info("personNew: "+uri);
                     Set<Film> films = loadSubCallFilms(response.getAsJsonArray("films"));
-                    Set<Starship> sships = loadSubCallStarships(response.getAsJsonArray("starships"));
                     for (Film film: films) {
                         log.info("loading people film name :" + film.getTitle());
                     }
+                    personNew.setFilms(new ArrayList<Film>(films));
+                    personRepository.flush();
+                }
+                if(null == personNew.getStarships()){
+                    Set<Starship> sships = loadSubCallStarships(response.getAsJsonArray("starships"));
                     for (Starship sship: sships) {
                         log.info("loading people sship name :" + sship.getName());
                     }
-
-                    personNew.setFilms(new ArrayList<Film>(films));
                     personNew.setStarships(new ArrayList<Starship>(sships));
                     personRepository.flush();
                 }
@@ -222,22 +225,22 @@ class SwarsController {
                 }else{
                     starshipNew = starshipAux.get(0);
                 }
-                if(null != starshipNew.getFilms()){
-                    Set<Person> pilots = loadSubCallPeople(response.getAsJsonArray("pilots"));
+                if(null == starshipNew.getFilms()){
                     Set<Film> films = loadSubCallFilms(response.getAsJsonArray("films"));
-
                     for (Film film: films) {
                         log.info("loading people film name :" + film.getTitle());
                     }
+                    starshipNew.setFilms(new ArrayList<Film>(films));
+                    starshipRepository.flush();
+                }
+                if(null == starshipNew.getPilots()){
+                    Set<Person> pilots = loadSubCallPilots(response.getAsJsonArray("pilots"));
                     for (Person pilot: pilots) {
                         log.info("loading people pilot name :" + pilot.getName());
                     }
-
-                    starshipNew.setFilms(films);
-                    starshipNew.setPilots(pilots);
+                    starshipNew.setPilots(new ArrayList<Person>(pilots));
                     starshipRepository.flush();
                 }
-
                 starshipList.add(starshipNew);
             }
         } else {
